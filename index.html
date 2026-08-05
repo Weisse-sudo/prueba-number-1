@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Para ti... 💖</title>
+    <title>Para Francesca</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@400;600&display=swap');
 
@@ -12,13 +12,12 @@
             padding: 0;
             width: 100%;
             height: 100%;
-            background-color: #050505; /* Fondo oscuro para que resalten las partículas */
+            background-color: #080808; 
             font-family: 'Montserrat', sans-serif;
             overflow: hidden;
             color: white;
         }
 
-        /* Canvas de partículas de fondo */
         #particle-canvas {
             position: absolute;
             top: 0;
@@ -28,17 +27,15 @@
             z-index: 1;
         }
 
-        /* Contenedor de las páginas */
         #pages-container {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            height: calc(100% - 80px); /* Deja espacio para los controles */
+            height: calc(100% - 80px);
             z-index: 10;
         }
 
-        /* Estructura base de cada página */
         .page {
             position: absolute;
             width: 100%;
@@ -56,10 +53,14 @@
             pointer-events: all;
         }
 
-        /* Contenedor del texto (sin cajas blancas, flotando libre) */
         .text-content {
             max-width: 500px;
-            text-shadow: 0 5px 15px rgba(0,0,0,0.8); /* Sombra para que se lea sobre las partículas */
+            text-shadow: 0 5px 15px rgba(0,0,0,0.9);
+            background: rgba(0, 0, 0, 0.4);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
         h1 {
@@ -71,57 +72,41 @@
         }
 
         p {
-            font-size: clamp(18px, 3vw, 24px);
+            font-size: clamp(16px, 3vw, 22px);
             line-height: 1.6;
             font-weight: 600;
         }
 
         .reason-number {
             font-family: 'Dancing Script', cursive;
-            font-size: clamp(80px, 12vw, 150px);
-            color: rgba(255, 255, 255, 0.1);
+            font-size: clamp(60px, 10vw, 120px);
+            color: rgba(255, 75, 114, 0.2);
             position: absolute;
             z-index: -1;
-            top: -20px;
-            left: -20px;
+            top: -10px;
+            left: 10px;
         }
 
-        /* ==========================================
-           POSICIONES DINÁMICAS
-           ========================================== */
+        /* Posiciones */
         .pos-center { justify-content: center; align-items: center; text-align: center; }
         .pos-top-left { justify-content: flex-start; align-items: flex-start; text-align: left; }
         .pos-bottom-right { justify-content: flex-end; align-items: flex-end; text-align: right; }
         .pos-top-right { justify-content: flex-end; align-items: flex-start; text-align: right; }
         .pos-bottom-left { justify-content: flex-start; align-items: flex-end; text-align: left; }
-        .pos-center-left { justify-content: flex-start; align-items: center; text-align: left; }
-        .pos-center-right { justify-content: flex-end; align-items: center; text-align: right; }
-
-        /* ==========================================
-           ANIMACIONES CREATIVAS
-           ========================================== */
-        /* Explosión (Aparece de golpe desde pequeño) */
+        
+        /* Animaciones */
         .anim-explode { transform: scale(0.2); opacity: 0; }
         .active .anim-explode { animation: explodeIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         @keyframes explodeIn { to { transform: scale(1); opacity: 1; } }
 
-        /* Caída lenta (Gravedad suave) */
         .anim-drop { transform: translateY(-100px); opacity: 0; }
         .active .anim-drop { animation: dropDown 1s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
         @keyframes dropDown { to { transform: translateY(0); opacity: 1; } }
 
-        /* Deslizamiento desde los lados */
         .anim-slide-left { transform: translateX(-100px); opacity: 0; filter: blur(10px); }
         .active .anim-slide-left { animation: slideLeft 0.8s ease-out forwards; }
         @keyframes slideLeft { to { transform: translateX(0); opacity: 1; filter: blur(0); } }
 
-        .anim-slide-right { transform: translateX(100px); opacity: 0; filter: blur(10px); }
-        .active .anim-slide-right { animation: slideRight 0.8s ease-out forwards; }
-        @keyframes slideRight { to { transform: translateX(0); opacity: 1; filter: blur(0); } }
-
-        /* ==========================================
-           CONTROLES
-           ========================================== */
         .controls {
             position: absolute;
             bottom: 0;
@@ -149,26 +134,13 @@
             backdrop-filter: blur(5px);
         }
 
-        button:hover {
-            background: #ff4b72;
-            color: white;
-            box-shadow: 0 0 15px rgba(255, 75, 114, 0.6);
-        }
-
-        button:disabled {
-            border-color: #555;
-            color: #555;
-            background: transparent;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
+        button:hover { background: #ff4b72; color: white; box-shadow: 0 0 15px rgba(255, 75, 114, 0.6); }
+        button:disabled { border-color: #555; color: #555; background: transparent; cursor: not-allowed; }
     </style>
 </head>
 <body>
 
-    <!-- El lienzo donde pintaremos el corazón de partículas basado en ecuaciones matemáticas -->
     <canvas id="particle-canvas"></canvas>
-
     <div id="pages-container"></div>
 
     <div class="controls">
@@ -179,80 +151,168 @@
 
     <script>
         // ==========================================
-        // 1. MOTOR DE PARTÍCULAS (LA MAGIA DE LA IMAGEN TRADUCIDA)
+        // MOTOR GRÁFICO MUTABLE (Corazón -> Rosa 3D -> Ave)
         // ==========================================
         const canvas = document.getElementById('particle-canvas');
         const ctx = canvas.getContext('2d');
         let width, height;
         let particles = [];
         let time = 0;
-        let isFocusMode = true; // Si es true, el corazón es grande y centrado (inicio y final)
+        let animationState = 'heart'; // 'heart', 'rose', 'bird'
+        let isFocusMode = true; 
+
+        // Variables interactivas del ave
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+        let birdPosX = window.innerWidth / 2;
+        let birdPosY = window.innerHeight / 2;
 
         function resize() {
             width = canvas.width = window.innerWidth;
             height = canvas.height = window.innerHeight;
+            mouseX = width / 2; mouseY = height / 2;
         }
         window.addEventListener('resize', resize);
         resize();
 
-        // Fórmula matemática del corazón (Traducción de Python a JS)
-        function getHeartPosition(t, scale) {
-            // x = 16 * sin^3(t)
-            const x = 16 * Math.pow(Math.sin(t), 3);
-            // y = 13*cos(t) - 5*cos(2t) - 2*cos(3t) - cos(4t) (Invertido porque el canvas dibuja hacia abajo)
-            const y = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
-            return { x: x * scale, y: y * scale };
-        }
+        // Rastrear cursor o dedo para el ave
+        window.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
+        window.addEventListener('touchmove', (e) => { mouseX = e.touches[0].clientX; mouseY = e.touches[0].clientY; });
 
         class Particle {
-            constructor() {
-                this.t = Math.random() * Math.PI * 2; // Punto aleatorio en la curva
-                this.noiseX = (Math.random() - 0.5) * 20; // Dispersión
-                this.noiseY = (Math.random() - 0.5) * 20;
-                this.size = Math.random() * 2 + 0.5;
-                this.color = Math.random() > 0.5 ? '#ff4b72' : '#ff8fa3';
-                this.speed = Math.random() * 0.02 + 0.005;
+            constructor(i, total) {
+                this.i = i;
+                this.total = total;
+                this.x = width / 2;
+                this.y = height / 2;
+
+                // Parámetros Corazón
+                this.tHeart = Math.random() * Math.PI * 2;
+                this.noiseX = (Math.random() - 0.5) * 15;
+                this.noiseY = (Math.random() - 0.5) * 15;
+
+                // Parámetros Rosa 3D (u = 0 a 8PI)
+                this.uRose = Math.random() * 8 * Math.PI;
+                this.roseJitter = { x: (Math.random()-0.5)*3, y: (Math.random()-0.5)*3, z: (Math.random()-0.5)*3 };
+
+                // Parámetros Ave
+                if (i < total * 0.4) this.birdPart = 'body';
+                else if (i < total * 0.7) this.birdPart = 'wingL';
+                else this.birdPart = 'wingR';
+
+                let rSize = this.birdPart === 'body' ? 15 : 8;
+                let phi = Math.random() * Math.PI * 2;
+                let costheta = Math.random() * 2 - 1;
+                let theta = Math.acos(costheta);
+
+                let bx = rSize * Math.sin(theta) * Math.cos(phi);
+                let by = rSize * Math.sin(theta) * Math.sin(phi);
+                
+                if (this.birdPart === 'wingL') { bx -= 25; by += 5; }
+                if (this.birdPart === 'wingR') { bx += 25; by += 5; }
+                
+                this.birdBaseX = bx;
+                this.birdBaseY = by;
             }
 
-            draw(scaleMultiplier) {
-                // Calcular posición base
-                let pos = getHeartPosition(this.t, scaleMultiplier);
-                
-                // Añadir efecto de latido y rotación lenta
-                const beat = Math.sin(time * 5) * 0.05 + 1;
-                
-                const finalX = width/2 + pos.x * beat + this.noiseX;
-                const finalY = height/2 + pos.y * beat + this.noiseY;
+            draw() {
+                let targetX, targetY, targetColor, targetSize;
 
+                if (animationState === 'heart') {
+                    let scale = isFocusMode ? Math.min(width, height) / 45 : Math.min(width, height) / 90;
+                    let hx = 16 * Math.pow(Math.sin(this.tHeart), 3);
+                    let hy = -(13 * Math.cos(this.tHeart) - 5 * Math.cos(2*this.tHeart) - 2 * Math.cos(3*this.tHeart) - Math.cos(4*this.tHeart));
+                    let beat = Math.sin(time * 5) * 0.05 + 1;
+
+                    targetX = width/2 + hx * scale * beat + this.noiseX;
+                    targetY = height/2 + hy * scale * beat + this.noiseY;
+                    targetColor = this.i % 2 === 0 ? '#ff4b72' : '#ff8fa3';
+                    targetSize = 1.5;
+                    this.tHeart += 0.015;
+
+                } else if (animationState === 'rose') {
+                    let u = this.uRose;
+                    let scale = Math.min(width, height) / 45; // Escala adaptativa
+                    let r = scale * (Math.sin(2 * u + time * 0.5) * 0.5 + 0.5) * (Math.cos(3 * u + time * 0.2) * 0.5 + 0.5);
+
+                    let rx = r * Math.cos(u) + this.roseJitter.x;
+                    let ry = r * Math.sin(u) + this.roseJitter.y;
+                    let rz = 2 * u + 5 * (Math.sin(u * 5) * 0.5 + 0.5) - 15 + this.roseJitter.z;
+
+                    // Rotación 3D
+                    let rotY = time * 0.3;
+                    let rotX = 0.6; 
+                    
+                    let x1 = rx * Math.cos(rotY) - rz * Math.sin(rotY);
+                    let z1 = rx * Math.sin(rotY) + rz * Math.cos(rotY);
+                    
+                    let y2 = ry * Math.cos(rotX) - z1 * Math.sin(rotX);
+                    let z2 = ry * Math.sin(rotX) + z1 * Math.cos(rotX);
+
+                    let fov = 150;
+                    let proj = fov / (fov + z2 + 50);
+
+                    targetX = width/2 + x1 * proj * 10;
+                    targetY = height/2 + y2 * proj * 10 + 50;
+
+                    let zNorm = u / (8 * Math.PI); 
+                    let rCol = Math.floor(Math.min(zNorm * 2, 1) * 255);
+                    let gCol = Math.floor(Math.max(0.6 - zNorm * 0.5, 0) * 255);
+                    let bCol = Math.floor((Math.sin(zNorm * Math.PI) * 0.2) * 255);
+                    
+                    targetColor = `rgba(${rCol}, ${gCol}, ${bCol}, 0.8)`;
+                    targetSize = Math.max(proj * 2.5, 0.5);
+
+                } else if (animationState === 'bird') {
+                    let aleteo = Math.sin(time * 10) * 15;
+                    let bx = this.birdBaseX;
+                    let by = this.birdBaseY;
+
+                    if (this.birdPart === 'wingL') {
+                        bx -= Math.abs(aleteo) * 0.5;
+                        by += aleteo;
+                    } else if (this.birdPart === 'wingR') {
+                        bx += Math.abs(aleteo) * 0.5;
+                        by += aleteo;
+                    }
+
+                    targetX = birdPosX + bx;
+                    targetY = birdPosY + by;
+                    
+                    targetColor = this.birdPart === 'body' ? 'rgba(255, 215, 0, 0.9)' : 'rgba(255, 100, 0, 0.7)';
+                    targetSize = 2;
+                }
+
+                // Interpolación lineal (LERP) para transiciones súper suaves entre estados
+                this.x += (targetX - this.x) * 0.08;
+                this.y += (targetY - this.y) * 0.08;
+
+                ctx.fillStyle = targetColor;
                 ctx.beginPath();
-                ctx.arc(finalX, finalY, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
+                ctx.arc(this.x, this.y, targetSize, 0, Math.PI * 2);
                 ctx.fill();
-
-                // Mover ligeramente por el perímetro
-                this.t += this.speed;
             }
         }
 
-        // Crear 600 partículas (un buen equilibrio para rendimiento en web)
-        for(let i = 0; i < 600; i++) particles.push(new Particle());
+        // 3000 partículas para renderizado web óptimo sin saturar el CPU
+        for(let i = 0; i < 3000; i++) particles.push(new Particle(i, 3000));
 
         function animateCanvas() {
-            ctx.fillStyle = 'rgba(5, 5, 5, 0.2)'; // Estela de movimiento
+            ctx.fillStyle = 'rgba(8, 8, 8, 0.3)'; 
             ctx.fillRect(0, 0, width, height);
             
-            // Si estamos en la página inicial o final, el corazón es más grande.
-            // Si estamos leyendo las razones, se reduce y queda como fondo sutil.
-            const targetScale = isFocusMode ? Math.min(width, height) / 45 : Math.min(width, height) / 90;
-            
-            particles.forEach(p => p.draw(targetScale));
+            // Suavizado del movimiento del ave hacia el ratón
+            birdPosX += (mouseX - birdPosX) * 0.05;
+            birdPosY += (mouseY - birdPosY) * 0.05;
+
+            particles.forEach(p => p.draw());
             time += 0.02;
             requestAnimationFrame(animateCanvas);
         }
         animateCanvas();
 
         // ==========================================
-        // 2. TEXTOS, POSICIONES Y ANIMACIONES DINÁMICAS
+        // TEXTOS Y LÓGICA DE PÁGINAS
         // ==========================================
         const razones = [
             "Tu sonrisa tiene el poder de iluminar hasta mi día más gris.",
@@ -267,14 +327,12 @@
             "Simplemente porque eres tú, y me he dado cuenta de que me encantas."
         ];
 
-        // Opciones de diseño para aleatorizar
-        const posiciones = ['pos-top-left', 'pos-bottom-right', 'pos-top-right', 'pos-bottom-left', 'pos-center-left', 'pos-center-right'];
-        const animaciones = ['anim-explode', 'anim-drop', 'anim-slide-left', 'anim-slide-right'];
+        const posiciones = ['pos-top-left', 'pos-bottom-right', 'pos-top-right', 'pos-bottom-left'];
+        const animaciones = ['anim-explode', 'anim-drop', 'anim-slide-left'];
 
         const container = document.getElementById('pages-container');
         let paginasHTML = [];
 
-        // Portada (Centrada y con explosión)
         paginasHTML.push(`
             <div class="page active pos-center">
                 <div class="text-content anim-explode">
@@ -285,11 +343,9 @@
             </div>
         `);
 
-        // Generar páginas aleatorias para las razones
         razones.forEach((razon, index) => {
             const posRandom = posiciones[Math.floor(Math.random() * posiciones.length)];
             const animRandom = animaciones[Math.floor(Math.random() * animaciones.length)];
-            
             paginasHTML.push(`
                 <div class="page ${posRandom}">
                     <div class="text-content ${animRandom}">
@@ -301,7 +357,6 @@
             `);
         });
 
-        // Página Final (Centrada y caída)
         paginasHTML.push(`
             <div class="page pos-center">
                 <div class="text-content anim-drop">
@@ -314,9 +369,6 @@
 
         container.innerHTML = paginasHTML.join('');
 
-        // ==========================================
-        // 3. LÓGICA DE NAVEGACIÓN
-        // ==========================================
         const pages = document.querySelectorAll('.page');
         const btnPrev = document.getElementById('btn-prev');
         const btnNext = document.getElementById('btn-next');
@@ -327,15 +379,20 @@
 
         function updatePages() {
             pages.forEach((page, index) => {
-                if (index === currentPage) {
-                    page.classList.add('active');
-                } else {
-                    page.classList.remove('active');
-                }
+                if (index === currentPage) page.classList.add('active');
+                else page.classList.remove('active');
             });
 
-            // Lógica para agrandar/achicar el corazón del fondo
+            // Lógica de cambio de animación en el fondo
             isFocusMode = (currentPage === 0 || currentPage === totalPages - 1);
+            
+            if (currentPage >= 3 && currentPage <= 5) {
+                animationState = 'rose';
+            } else if (currentPage >= 6 && currentPage <= 8) {
+                animationState = 'bird';
+            } else {
+                animationState = 'heart';
+            }
 
             btnPrev.disabled = currentPage === 0;
             btnNext.style.display = currentPage === totalPages - 1 ? 'none' : 'block';
@@ -345,20 +402,8 @@
             else counter.innerText = `${currentPage} de 10`;
         }
 
-        btnNext.addEventListener('click', () => {
-            if (currentPage < totalPages - 1) {
-                currentPage++;
-                updatePages();
-            }
-        });
-
-        btnPrev.addEventListener('click', () => {
-            if (currentPage > 0) {
-                currentPage--;
-                updatePages();
-            }
-        });
-
+        btnNext.addEventListener('click', () => { if (currentPage < totalPages - 1) { currentPage++; updatePages(); } });
+        btnPrev.addEventListener('click', () => { if (currentPage > 0) { currentPage--; updatePages(); } });
         updatePages();
     </script>
 </body>
