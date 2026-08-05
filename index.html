@@ -7,241 +7,252 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@400;600&display=swap');
 
-        body {
+        body, html {
             margin: 0;
             padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #050505; /* Fondo oscuro para que resalten las partículas */
             font-family: 'Montserrat', sans-serif;
-            /* Fondo con gradiente animado */
-            background: linear-gradient(-45deg, #ff9a9e, #fecfef, #ffc3a0, #ffafbd);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             overflow: hidden;
-            perspective: 1000px;
+            color: white;
         }
 
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        /* Partículas de fondo (Corazones y Flores) */
-        .particle {
+        /* Canvas de partículas de fondo */
+        #particle-canvas {
             position: absolute;
-            pointer-events: none;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             z-index: 1;
-            animation: fall linear infinite;
         }
 
-        @keyframes fall {
-            0% { transform: translateY(-10vh) rotate(0deg) scale(0.8); opacity: 0; }
-            10% { opacity: 0.8; }
-            90% { opacity: 0.8; }
-            100% { transform: translateY(110vh) rotate(360deg) scale(1.2); opacity: 0; }
-        }
-
-        /* Corazón interactivo al hacer click */
-        .click-heart {
+        /* Contenedor de las páginas */
+        #pages-container {
             position: absolute;
-            font-size: 25px;
-            pointer-events: none;
-            z-index: 100;
-            animation: floatUp 1s ease-out forwards;
-        }
-
-        @keyframes floatUp {
-            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
-            100% { transform: translate(-50%, -150%) scale(1.5); opacity: 0; }
-        }
-
-        /* Contenedor tipo Cristal (Glassmorphism) */
-        .book-container {
-            position: relative;
-            width: 90%;
-            max-width: 420px;
-            height: 550px;
-            background: rgba(255, 255, 255, 0.4);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 2px solid rgba(255, 255, 255, 0.6);
-            border-radius: 30px;
-            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1), inset 0 0 20px rgba(255, 255, 255, 0.5);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: calc(100% - 80px); /* Deja espacio para los controles */
             z-index: 10;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
         }
 
-        /* Decoraciones fijas en las esquinas */
-        .corner-deco {
-            position: absolute;
-            width: 80px;
-            opacity: 0.6;
-            pointer-events: none;
-        }
-        .top-left { top: -10px; left: -10px; transform: rotate(-45deg); font-size: 60px; }
-        .bottom-right { bottom: -10px; right: -10px; transform: rotate(135deg); font-size: 60px; }
-
-        /* Páginas con animación 3D */
+        /* Estructura base de cada página */
         .page {
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 80px;
-            padding: 40px;
+            width: 100%;
+            height: 100%;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
+            padding: 40px;
+            box-sizing: border-box;
             opacity: 0;
-            transform: rotateY(-30deg) scale(0.8) translateX(50px);
-            transition: all 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             pointer-events: none;
+            transition: opacity 0.5s ease-out;
         }
 
         .page.active {
             opacity: 1;
-            transform: rotateY(0deg) scale(1) translateX(0);
             pointer-events: all;
         }
 
-        .page.previous {
-            transform: rotateY(30deg) scale(0.8) translateX(-50px);
-            opacity: 0;
+        /* Contenedor del texto (sin cajas blancas, flotando libre) */
+        .text-content {
+            max-width: 500px;
+            text-shadow: 0 5px 15px rgba(0,0,0,0.8); /* Sombra para que se lea sobre las partículas */
         }
 
         h1 {
             font-family: 'Dancing Script', cursive;
-            color: #ff3366;
-            font-size: 45px;
-            margin-bottom: 20px;
-            line-height: 1.1;
-            text-shadow: 0 0 10px rgba(255, 51, 102, 0.3);
+            color: #ff4b72;
+            font-size: clamp(40px, 6vw, 60px);
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(255, 75, 114, 0.6);
         }
 
         p {
-            color: #444;
-            font-size: 18px;
-            line-height: 1.7;
+            font-size: clamp(18px, 3vw, 24px);
+            line-height: 1.6;
             font-weight: 600;
         }
 
         .reason-number {
             font-family: 'Dancing Script', cursive;
-            font-size: 120px;
-            background: linear-gradient(45deg, #ff3366, #ff99ac);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            opacity: 0.2;
+            font-size: clamp(80px, 12vw, 150px);
+            color: rgba(255, 255, 255, 0.1);
             position: absolute;
             z-index: -1;
-            top: 50%;
-            transform: translateY(-50%);
+            top: -20px;
+            left: -20px;
         }
 
-        /* Barra inferior (Controles) */
+        /* ==========================================
+           POSICIONES DINÁMICAS
+           ========================================== */
+        .pos-center { justify-content: center; align-items: center; text-align: center; }
+        .pos-top-left { justify-content: flex-start; align-items: flex-start; text-align: left; }
+        .pos-bottom-right { justify-content: flex-end; align-items: flex-end; text-align: right; }
+        .pos-top-right { justify-content: flex-end; align-items: flex-start; text-align: right; }
+        .pos-bottom-left { justify-content: flex-start; align-items: flex-end; text-align: left; }
+        .pos-center-left { justify-content: flex-start; align-items: center; text-align: left; }
+        .pos-center-right { justify-content: flex-end; align-items: center; text-align: right; }
+
+        /* ==========================================
+           ANIMACIONES CREATIVAS
+           ========================================== */
+        /* Explosión (Aparece de golpe desde pequeño) */
+        .anim-explode { transform: scale(0.2); opacity: 0; }
+        .active .anim-explode { animation: explodeIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes explodeIn { to { transform: scale(1); opacity: 1; } }
+
+        /* Caída lenta (Gravedad suave) */
+        .anim-drop { transform: translateY(-100px); opacity: 0; }
+        .active .anim-drop { animation: dropDown 1s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+        @keyframes dropDown { to { transform: translateY(0); opacity: 1; } }
+
+        /* Deslizamiento desde los lados */
+        .anim-slide-left { transform: translateX(-100px); opacity: 0; filter: blur(10px); }
+        .active .anim-slide-left { animation: slideLeft 0.8s ease-out forwards; }
+        @keyframes slideLeft { to { transform: translateX(0); opacity: 1; filter: blur(0); } }
+
+        .anim-slide-right { transform: translateX(100px); opacity: 0; filter: blur(10px); }
+        .active .anim-slide-right { animation: slideRight 0.8s ease-out forwards; }
+        @keyframes slideRight { to { transform: translateX(0); opacity: 1; filter: blur(0); } }
+
+        /* ==========================================
+           CONTROLES
+           ========================================== */
         .controls {
             position: absolute;
             bottom: 0;
             width: 100%;
             height: 80px;
-            background: rgba(255, 255, 255, 0.5);
-            border-top: 1px solid rgba(255, 255, 255, 0.8);
+            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 25px;
+            padding: 0 30px;
             box-sizing: border-box;
+            z-index: 20;
         }
 
         button {
-            background: linear-gradient(45deg, #ff3366, #ff6b8b);
-            color: white;
-            border: none;
-            padding: 12px 25px;
+            background: rgba(255, 75, 114, 0.2);
+            color: #ff4b72;
+            border: 1px solid #ff4b72;
+            padding: 10px 25px;
             border-radius: 30px;
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(255, 51, 102, 0.3);
+            backdrop-filter: blur(5px);
         }
 
         button:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 8px 20px rgba(255, 51, 102, 0.5);
+            background: #ff4b72;
+            color: white;
+            box-shadow: 0 0 15px rgba(255, 75, 114, 0.6);
         }
 
         button:disabled {
-            background: #d3d3d3;
-            box-shadow: none;
+            border-color: #555;
+            color: #555;
+            background: transparent;
             cursor: not-allowed;
-            transform: none;
-            color: #888;
-        }
-
-        /* Efecto final de latido */
-        .heart-beat {
-            font-size: 80px;
-            animation: beat 1s infinite alternate;
-            filter: drop-shadow(0 0 15px rgba(255,51,102,0.6));
-        }
-
-        @keyframes beat {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.2); }
+            box-shadow: none;
         }
     </style>
 </head>
 <body>
 
-    <div class="book-container">
-        <div class="corner-deco top-left">🌸</div>
-        <div class="corner-deco bottom-right">✨</div>
+    <!-- El lienzo donde pintaremos el corazón de partículas basado en ecuaciones matemáticas -->
+    <canvas id="particle-canvas"></canvas>
 
-        <div id="pages-container"></div>
+    <div id="pages-container"></div>
 
-        <div class="controls">
-            <button id="btn-prev" disabled>🤍 Atrás</button>
-            <span id="page-counter" style="color: #ff3366; font-weight: bold; font-size: 14px;"></span>
-            <button id="btn-next">Sig. 💖</button>
-        </div>
+    <div class="controls">
+        <button id="btn-prev" disabled>Atrás</button>
+        <span id="page-counter" style="color: rgba(255,255,255,0.5); font-size: 14px; font-weight: bold;"></span>
+        <button id="btn-next">Siguiente</button>
     </div>
 
     <script>
         // ==========================================
-        // SISTEMA DE PARTÍCULAS (LLUVIA DE FLORES Y CORAZONES)
+        // 1. MOTOR DE PARTÍCULAS (LA MAGIA DE LA IMAGEN TRADUCIDA)
         // ==========================================
-        const emojis = ['🌸', '💖', '✨', '💕', '🌺'];
-        for(let i = 0; i < 35; i++) {
-            let particle = document.createElement('div');
-            particle.className = 'particle';
-            particle.innerHTML = emojis[Math.floor(Math.random() * emojis.length)];
-            particle.style.left = Math.random() * 100 + 'vw';
-            particle.style.fontSize = (Math.random() * 15 + 10) + 'px';
-            particle.style.animationDuration = (Math.random() * 6 + 4) + 's';
-            particle.style.animationDelay = Math.random() * 5 + 's';
-            document.body.appendChild(particle);
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+        let time = 0;
+        let isFocusMode = true; // Si es true, el corazón es grande y centrado (inicio y final)
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Fórmula matemática del corazón (Traducción de Python a JS)
+        function getHeartPosition(t, scale) {
+            // x = 16 * sin^3(t)
+            const x = 16 * Math.pow(Math.sin(t), 3);
+            // y = 13*cos(t) - 5*cos(2t) - 2*cos(3t) - cos(4t) (Invertido porque el canvas dibuja hacia abajo)
+            const y = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+            return { x: x * scale, y: y * scale };
         }
 
-        // ==========================================
-        // MAGIA AL HACER CLIC EN LA PANTALLA
-        // ==========================================
-        document.addEventListener('click', (e) => {
-            let clickHeart = document.createElement('div');
-            clickHeart.className = 'click-heart';
-            clickHeart.innerHTML = '💖';
-            clickHeart.style.left = e.pageX + 'px';
-            clickHeart.style.top = e.pageY + 'px';
-            document.body.appendChild(clickHeart);
-            setTimeout(() => clickHeart.remove(), 1000);
-        });
+        class Particle {
+            constructor() {
+                this.t = Math.random() * Math.PI * 2; // Punto aleatorio en la curva
+                this.noiseX = (Math.random() - 0.5) * 20; // Dispersión
+                this.noiseY = (Math.random() - 0.5) * 20;
+                this.size = Math.random() * 2 + 0.5;
+                this.color = Math.random() > 0.5 ? '#ff4b72' : '#ff8fa3';
+                this.speed = Math.random() * 0.02 + 0.005;
+            }
+
+            draw(scaleMultiplier) {
+                // Calcular posición base
+                let pos = getHeartPosition(this.t, scaleMultiplier);
+                
+                // Añadir efecto de latido y rotación lenta
+                const beat = Math.sin(time * 5) * 0.05 + 1;
+                
+                const finalX = width/2 + pos.x * beat + this.noiseX;
+                const finalY = height/2 + pos.y * beat + this.noiseY;
+
+                ctx.beginPath();
+                ctx.arc(finalX, finalY, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+
+                // Mover ligeramente por el perímetro
+                this.t += this.speed;
+            }
+        }
+
+        // Crear 600 partículas (un buen equilibrio para rendimiento en web)
+        for(let i = 0; i < 600; i++) particles.push(new Particle());
+
+        function animateCanvas() {
+            ctx.fillStyle = 'rgba(5, 5, 5, 0.2)'; // Estela de movimiento
+            ctx.fillRect(0, 0, width, height);
+            
+            // Si estamos en la página inicial o final, el corazón es más grande.
+            // Si estamos leyendo las razones, se reduce y queda como fondo sutil.
+            const targetScale = isFocusMode ? Math.min(width, height) / 45 : Math.min(width, height) / 90;
+            
+            particles.forEach(p => p.draw(targetScale));
+            time += 0.02;
+            requestAnimationFrame(animateCanvas);
+        }
+        animateCanvas();
 
         // ==========================================
-        // AQUÍ PUEDES EDITAR TUS 10 RAZONES
+        // 2. TEXTOS, POSICIONES Y ANIMACIONES DINÁMICAS
         // ==========================================
         const razones = [
             "Tu sonrisa tiene el poder de iluminar hasta mi día más gris.",
@@ -255,44 +266,57 @@
             "Ese pequeño detalle tuyo de [escribe aquí un detalle muy suyo].",
             "Simplemente porque eres tú, y me he dado cuenta de que me encantas."
         ];
-        // ==========================================
+
+        // Opciones de diseño para aleatorizar
+        const posiciones = ['pos-top-left', 'pos-bottom-right', 'pos-top-right', 'pos-bottom-left', 'pos-center-left', 'pos-center-right'];
+        const animaciones = ['anim-explode', 'anim-drop', 'anim-slide-left', 'anim-slide-right'];
 
         const container = document.getElementById('pages-container');
         let paginasHTML = [];
 
-        // Portada
+        // Portada (Centrada y con explosión)
         paginasHTML.push(`
-            <div class="page active">
-                <h1>Para ti...</h1>
-                <p>He estado pensando mucho últimamente, y quería hacer algo realmente especial.</p>
-                <p>Desliza para descubrir <br><span style="color:#ff3366">10 razones por las que me encantas.</span></p>
+            <div class="page active pos-center">
+                <div class="text-content anim-explode">
+                    <h1>Para ti...</h1>
+                    <p style="color: #ddd;">He estado pensando mucho últimamente, y quería hacer algo diferente.</p>
+                    <p style="color: #ff4b72;">10 razones por las que me encantas.</p>
+                </div>
             </div>
         `);
 
-        // Generar las 10 razones
+        // Generar páginas aleatorias para las razones
         razones.forEach((razon, index) => {
+            const posRandom = posiciones[Math.floor(Math.random() * posiciones.length)];
+            const animRandom = animaciones[Math.floor(Math.random() * animaciones.length)];
+            
             paginasHTML.push(`
-                <div class="page">
-                    <div class="reason-number">${index + 1}</div>
-                    <h1>Razón #${index + 1}</h1>
-                    <p>${razon}</p>
+                <div class="page ${posRandom}">
+                    <div class="text-content ${animRandom}">
+                        <div class="reason-number">${index + 1}</div>
+                        <h1>Razón #${index + 1}</h1>
+                        <p>${razon}</p>
+                    </div>
                 </div>
             `);
         });
 
-        // Página Final
+        // Página Final (Centrada y caída)
         paginasHTML.push(`
-            <div class="page">
-                <div class="heart-beat">💝</div>
-                <h1>¿Y bien?</h1>
-                <p>Estas son solo 10, pero mi lista es infinita.</p>
-                <p>Me gustas muchísimo. ¿Te gustaría que saliéramos uno de estos días?</p>
+            <div class="page pos-center">
+                <div class="text-content anim-drop">
+                    <h1>¿Y bien?</h1>
+                    <p style="color: #ddd;">Estas son solo 10, pero mi lista es infinita.</p>
+                    <p style="color: #ff4b72; font-size: 28px;">¿Te gustaría salir conmigo?</p>
+                </div>
             </div>
         `);
 
         container.innerHTML = paginasHTML.join('');
 
-        // Lógica de navegación con animaciones
+        // ==========================================
+        // 3. LÓGICA DE NAVEGACIÓN
+        // ==========================================
         const pages = document.querySelectorAll('.page');
         const btnPrev = document.getElementById('btn-prev');
         const btnNext = document.getElementById('btn-next');
@@ -303,29 +327,22 @@
 
         function updatePages() {
             pages.forEach((page, index) => {
-                page.classList.remove('active', 'previous');
                 if (index === currentPage) {
                     page.classList.add('active');
-                } else if (index < currentPage) {
-                    page.classList.add('previous');
+                } else {
+                    page.classList.remove('active');
                 }
             });
 
-            btnPrev.disabled = currentPage === 0;
-            
-            if (currentPage === totalPages - 1) {
-                btnNext.style.display = 'none'; 
-            } else {
-                btnNext.style.display = 'block';
-            }
+            // Lógica para agrandar/achicar el corazón del fondo
+            isFocusMode = (currentPage === 0 || currentPage === totalPages - 1);
 
-            if (currentPage === 0) {
-                counter.innerText = "Inicio";
-            } else if (currentPage === totalPages - 1) {
-                counter.innerText = "Fin";
-            } else {
-                counter.innerText = `${currentPage} de 10`;
-            }
+            btnPrev.disabled = currentPage === 0;
+            btnNext.style.display = currentPage === totalPages - 1 ? 'none' : 'block';
+            
+            if (currentPage === 0) counter.innerText = "Inicio";
+            else if (currentPage === totalPages - 1) counter.innerText = "Fin";
+            else counter.innerText = `${currentPage} de 10`;
         }
 
         btnNext.addEventListener('click', () => {
