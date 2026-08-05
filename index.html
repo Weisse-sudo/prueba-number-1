@@ -3,196 +3,243 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Para alguien muy especial 💖</title>
+    <title>Para ti... 💖</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@400;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@400;600&display=swap');
 
         body {
             margin: 0;
             padding: 0;
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #ffe6ea 0%, #ffc3d1 100%);
+            font-family: 'Montserrat', sans-serif;
+            /* Fondo con gradiente animado */
+            background: linear-gradient(-45deg, #ff9a9e, #fecfef, #ffc3a0, #ffafbd);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow: hidden; /* Para que los corazones flotantes no creen scroll */
+            overflow: hidden;
+            perspective: 1000px;
         }
 
-        /* Corazones flotantes de fondo */
-        .bg-heart {
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Partículas de fondo (Corazones y Flores) */
+        .particle {
             position: absolute;
-            color: rgba(255, 105, 135, 0.3);
-            font-size: 20px;
-            animation: float 10s linear infinite;
-            z-index: 0;
+            pointer-events: none;
+            z-index: 1;
+            animation: fall linear infinite;
         }
 
-        @keyframes float {
-            0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+        @keyframes fall {
+            0% { transform: translateY(-10vh) rotate(0deg) scale(0.8); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { transform: translateY(110vh) rotate(360deg) scale(1.2); opacity: 0; }
         }
 
-        /* Contenedor principal del libro */
+        /* Corazón interactivo al hacer click */
+        .click-heart {
+            position: absolute;
+            font-size: 25px;
+            pointer-events: none;
+            z-index: 100;
+            animation: floatUp 1s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+            100% { transform: translate(-50%, -150%) scale(1.5); opacity: 0; }
+        }
+
+        /* Contenedor tipo Cristal (Glassmorphism) */
         .book-container {
             position: relative;
             width: 90%;
-            max-width: 450px;
-            height: 500px;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(255, 105, 135, 0.3);
+            max-width: 420px;
+            height: 550px;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            border-radius: 30px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1), inset 0 0 20px rgba(255, 255, 255, 0.5);
             z-index: 10;
-            overflow: hidden;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
         }
 
-        /* Decoración de las esquinas */
-        .decoration {
+        /* Decoraciones fijas en las esquinas */
+        .corner-deco {
             position: absolute;
-            font-size: 40px;
-            opacity: 0.8;
-            pointer-events: none; /* Para no interferir con clics */
+            width: 80px;
+            opacity: 0.6;
+            pointer-events: none;
         }
-        .top-left { top: 10px; left: 10px; }
-        .bottom-right { bottom: 10px; right: 10px; }
+        .top-left { top: -10px; left: -10px; transform: rotate(-45deg); font-size: 60px; }
+        .bottom-right { bottom: -10px; right: -10px; transform: rotate(135deg); font-size: 60px; }
 
-        /* Estilo de cada página */
+        /* Páginas con animación 3D */
         .page {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 80px;
-            padding: 40px 30px;
+            padding: 40px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
             opacity: 0;
-            transform: translateX(50px);
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: rotateY(-30deg) scale(0.8) translateX(50px);
+            transition: all 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             pointer-events: none;
         }
 
         .page.active {
             opacity: 1;
-            transform: translateX(0);
+            transform: rotateY(0deg) scale(1) translateX(0);
             pointer-events: all;
         }
 
         .page.previous {
-            transform: translateX(-50px);
+            transform: rotateY(30deg) scale(0.8) translateX(-50px);
+            opacity: 0;
         }
 
         h1 {
             font-family: 'Dancing Script', cursive;
-            color: #ff4b72;
-            font-size: 38px;
+            color: #ff3366;
+            font-size: 45px;
             margin-bottom: 20px;
-            line-height: 1.2;
+            line-height: 1.1;
+            text-shadow: 0 0 10px rgba(255, 51, 102, 0.3);
         }
 
         p {
-            color: #555;
+            color: #444;
             font-size: 18px;
-            line-height: 1.6;
+            line-height: 1.7;
+            font-weight: 600;
         }
 
-        /* Número grande de fondo para las razones */
         .reason-number {
-            position: absolute;
-            font-size: 150px;
-            font-weight: bold;
-            color: rgba(255, 195, 209, 0.3);
-            z-index: -1;
             font-family: 'Dancing Script', cursive;
+            font-size: 120px;
+            background: linear-gradient(45deg, #ff3366, #ff99ac);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            opacity: 0.2;
+            position: absolute;
+            z-index: -1;
+            top: 50%;
+            transform: translateY(-50%);
         }
 
-        /* Controles de navegación */
+        /* Barra inferior (Controles) */
         .controls {
             position: absolute;
             bottom: 0;
             width: 100%;
             height: 80px;
-            background: #fff0f3;
+            background: rgba(255, 255, 255, 0.5);
+            border-top: 1px solid rgba(255, 255, 255, 0.8);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 20px;
+            padding: 0 25px;
             box-sizing: border-box;
-            border-top: 2px dashed #ffc3d1;
         }
 
         button {
-            background: #ff4b72;
+            background: linear-gradient(45deg, #ff3366, #ff6b8b);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
+            padding: 12px 25px;
+            border-radius: 30px;
             font-size: 16px;
-            font-family: inherit;
+            font-weight: bold;
             cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
-            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 51, 102, 0.3);
         }
 
         button:hover {
-            background: #e6395e;
-            transform: scale(1.05);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(255, 51, 102, 0.5);
         }
 
         button:disabled {
-            background: #ccc;
+            background: #d3d3d3;
+            box-shadow: none;
             cursor: not-allowed;
             transform: none;
+            color: #888;
         }
 
-        /* Elementos del final */
-        .final-heart {
-            font-size: 60px;
-            animation: pulse 1.5s infinite;
-            margin-bottom: 20px;
+        /* Efecto final de latido */
+        .heart-beat {
+            font-size: 80px;
+            animation: beat 1s infinite alternate;
+            filter: drop-shadow(0 0 15px rgba(255,51,102,0.6));
         }
 
-        @keyframes pulse {
+        @keyframes beat {
             0% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
+            100% { transform: scale(1.2); }
         }
     </style>
 </head>
 <body>
 
-    <!-- Generación de corazones de fondo -->
-    <script>
-        for(let i = 0; i < 15; i++) {
-            let heart = document.createElement('div');
-            heart.className = 'bg-heart';
-            heart.innerHTML = ['💖', '🌸', '✨', '💕'][Math.floor(Math.random() * 4)];
-            heart.style.left = Math.random() * 100 + 'vw';
-            heart.style.animationDuration = (Math.random() * 5 + 5) + 's';
-            heart.style.animationDelay = Math.random() * 5 + 's';
-            document.body.appendChild(heart);
-        }
-    </script>
-
     <div class="book-container">
-        <div class="decoration top-left">🌸</div>
-        <div class="decoration bottom-right">✨</div>
+        <div class="corner-deco top-left">🌸</div>
+        <div class="corner-deco bottom-right">✨</div>
 
-        <!-- Contenedor donde se inyectarán las páginas dinámicamente -->
         <div id="pages-container"></div>
 
         <div class="controls">
-            <button id="btn-prev" disabled>⬅️ Anterior</button>
-            <span id="page-counter" style="color: #ff4b72; font-weight: bold;"></span>
-            <button id="btn-next">Siguiente ➡️</button>
+            <button id="btn-prev" disabled>🤍 Atrás</button>
+            <span id="page-counter" style="color: #ff3366; font-weight: bold; font-size: 14px;"></span>
+            <button id="btn-next">Sig. 💖</button>
         </div>
     </div>
 
     <script>
+        // ==========================================
+        // SISTEMA DE PARTÍCULAS (LLUVIA DE FLORES Y CORAZONES)
+        // ==========================================
+        const emojis = ['🌸', '💖', '✨', '💕', '🌺'];
+        for(let i = 0; i < 35; i++) {
+            let particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.innerHTML = emojis[Math.floor(Math.random() * emojis.length)];
+            particle.style.left = Math.random() * 100 + 'vw';
+            particle.style.fontSize = (Math.random() * 15 + 10) + 'px';
+            particle.style.animationDuration = (Math.random() * 6 + 4) + 's';
+            particle.style.animationDelay = Math.random() * 5 + 's';
+            document.body.appendChild(particle);
+        }
+
+        // ==========================================
+        // MAGIA AL HACER CLIC EN LA PANTALLA
+        // ==========================================
+        document.addEventListener('click', (e) => {
+            let clickHeart = document.createElement('div');
+            clickHeart.className = 'click-heart';
+            clickHeart.innerHTML = '💖';
+            clickHeart.style.left = e.pageX + 'px';
+            clickHeart.style.top = e.pageY + 'px';
+            document.body.appendChild(clickHeart);
+            setTimeout(() => clickHeart.remove(), 1000);
+        });
+
         // ==========================================
         // AQUÍ PUEDES EDITAR TUS 10 RAZONES
         // ==========================================
@@ -213,16 +260,16 @@
         const container = document.getElementById('pages-container');
         let paginasHTML = [];
 
-        // 1. Crear la página de Portada (Índice 0)
+        // Portada
         paginasHTML.push(`
             <div class="page active">
-                <h1>Hola...</h1>
-                <p>He estado pensando mucho últimamente, y quería hacer algo especial para decirte algo importante.</p>
-                <p>Desliza para ver <br><strong>10 de las muchas razones por las que me gustas.</strong></p>
+                <h1>Para ti...</h1>
+                <p>He estado pensando mucho últimamente, y quería hacer algo realmente especial.</p>
+                <p>Desliza para descubrir <br><span style="color:#ff3366">10 razones por las que me encantas.</span></p>
             </div>
         `);
 
-        // 2. Crear las 10 páginas de razones (Índices 1 al 10)
+        // Generar las 10 razones
         razones.forEach((razon, index) => {
             paginasHTML.push(`
                 <div class="page">
@@ -233,20 +280,19 @@
             `);
         });
 
-        // 3. Crear la página final (Índice 11)
+        // Página Final
         paginasHTML.push(`
             <div class="page">
-                <div class="final-heart">💝</div>
+                <div class="heart-beat">💝</div>
                 <h1>¿Y bien?</h1>
-                <p>Estas son solo 10, pero hay muchísimas más.</p>
-                <p>Me gustas mucho. ¿Te gustaría que saliéramos a tomar algo o dar un paseo uno de estos días?</p>
+                <p>Estas son solo 10, pero mi lista es infinita.</p>
+                <p>Me gustas muchísimo. ¿Te gustaría que saliéramos uno de estos días?</p>
             </div>
         `);
 
-        // Insertar todas las páginas en el contenedor
         container.innerHTML = paginasHTML.join('');
 
-        // Lógica de navegación
+        // Lógica de navegación con animaciones
         const pages = document.querySelectorAll('.page');
         const btnPrev = document.getElementById('btn-prev');
         const btnNext = document.getElementById('btn-next');
@@ -265,22 +311,20 @@
                 }
             });
 
-            // Actualizar estado de los botones
             btnPrev.disabled = currentPage === 0;
             
             if (currentPage === totalPages - 1) {
-                btnNext.style.display = 'none'; // Ocultar el botón "Siguiente" en la última página
+                btnNext.style.display = 'none'; 
             } else {
                 btnNext.style.display = 'block';
             }
 
-            // Actualizar contador
             if (currentPage === 0) {
-                counter.innerText = "Portada";
+                counter.innerText = "Inicio";
             } else if (currentPage === totalPages - 1) {
-                counter.innerText = "Final";
+                counter.innerText = "Fin";
             } else {
-                counter.innerText = `${currentPage} / 10`;
+                counter.innerText = `${currentPage} de 10`;
             }
         }
 
@@ -298,7 +342,6 @@
             }
         });
 
-        // Inicializar
         updatePages();
     </script>
 </body>
