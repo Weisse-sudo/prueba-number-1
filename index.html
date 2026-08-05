@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para alguien muy especial 💖</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@400;600&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #ffe6ea 0%, #ffc3d1 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden; /* Para que los corazones flotantes no creen scroll */
+        }
+
+        /* Corazones flotantes de fondo */
+        .bg-heart {
+            position: absolute;
+            color: rgba(255, 105, 135, 0.3);
+            font-size: 20px;
+            animation: float 10s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+        }
+
+        /* Contenedor principal del libro */
+        .book-container {
+            position: relative;
+            width: 90%;
+            max-width: 450px;
+            height: 500px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(255, 105, 135, 0.3);
+            z-index: 10;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Decoración de las esquinas */
+        .decoration {
+            position: absolute;
+            font-size: 40px;
+            opacity: 0.8;
+            pointer-events: none; /* Para no interferir con clics */
+        }
+        .top-left { top: 10px; left: 10px; }
+        .bottom-right { bottom: 10px; right: 10px; }
+
+        /* Estilo de cada página */
+        .page {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 80px;
+            padding: 40px 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            opacity: 0;
+            transform: translateX(50px);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+        }
+
+        .page.active {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: all;
+        }
+
+        .page.previous {
+            transform: translateX(-50px);
+        }
+
+        h1 {
+            font-family: 'Dancing Script', cursive;
+            color: #ff4b72;
+            font-size: 38px;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        p {
+            color: #555;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        /* Número grande de fondo para las razones */
+        .reason-number {
+            position: absolute;
+            font-size: 150px;
+            font-weight: bold;
+            color: rgba(255, 195, 209, 0.3);
+            z-index: -1;
+            font-family: 'Dancing Script', cursive;
+        }
+
+        /* Controles de navegación */
+        .controls {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 80px;
+            background: #fff0f3;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            box-sizing: border-box;
+            border-top: 2px dashed #ffc3d1;
+        }
+
+        button {
+            background: #ff4b72;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background: #e6395e;
+            transform: scale(1.05);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Elementos del final */
+        .final-heart {
+            font-size: 60px;
+            animation: pulse 1.5s infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Generación de corazones de fondo -->
+    <script>
+        for(let i = 0; i < 15; i++) {
+            let heart = document.createElement('div');
+            heart.className = 'bg-heart';
+            heart.innerHTML = ['💖', '🌸', '✨', '💕'][Math.floor(Math.random() * 4)];
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = (Math.random() * 5 + 5) + 's';
+            heart.style.animationDelay = Math.random() * 5 + 's';
+            document.body.appendChild(heart);
+        }
+    </script>
+
+    <div class="book-container">
+        <div class="decoration top-left">🌸</div>
+        <div class="decoration bottom-right">✨</div>
+
+        <!-- Contenedor donde se inyectarán las páginas dinámicamente -->
+        <div id="pages-container"></div>
+
+        <div class="controls">
+            <button id="btn-prev" disabled>⬅️ Anterior</button>
+            <span id="page-counter" style="color: #ff4b72; font-weight: bold;"></span>
+            <button id="btn-next">Siguiente ➡️</button>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // AQUÍ PUEDES EDITAR TUS 10 RAZONES
+        // ==========================================
+        const razones = [
+            "Tu sonrisa tiene el poder de iluminar hasta mi día más gris.",
+            "La forma tan linda en la que te apasionas por las cosas que te gustan.",
+            "Tu sentido del humor y cómo siempre logras hacerme reír.",
+            "Lo inteligente y brillante que eres en todo lo que haces.",
+            "Esa mirada especial que tienes y que me deja sin palabras.",
+            "Tu infinita bondad y la forma tan dulce en la que tratas a los demás.",
+            "Las conversaciones de horas que se sienten como si fueran minutos.",
+            "La paz y seguridad que me haces sentir cuando estoy contigo.",
+            "Ese pequeño detalle tuyo de [escribe aquí un detalle muy suyo].",
+            "Simplemente porque eres tú, y me he dado cuenta de que me encantas."
+        ];
+        // ==========================================
+
+        const container = document.getElementById('pages-container');
+        let paginasHTML = [];
+
+        // 1. Crear la página de Portada (Índice 0)
+        paginasHTML.push(`
+            <div class="page active">
+                <h1>Hola...</h1>
+                <p>He estado pensando mucho últimamente, y quería hacer algo especial para decirte algo importante.</p>
+                <p>Desliza para ver <br><strong>10 de las muchas razones por las que me gustas.</strong></p>
+            </div>
+        `);
+
+        // 2. Crear las 10 páginas de razones (Índices 1 al 10)
+        razones.forEach((razon, index) => {
+            paginasHTML.push(`
+                <div class="page">
+                    <div class="reason-number">${index + 1}</div>
+                    <h1>Razón #${index + 1}</h1>
+                    <p>${razon}</p>
+                </div>
+            `);
+        });
+
+        // 3. Crear la página final (Índice 11)
+        paginasHTML.push(`
+            <div class="page">
+                <div class="final-heart">💝</div>
+                <h1>¿Y bien?</h1>
+                <p>Estas son solo 10, pero hay muchísimas más.</p>
+                <p>Me gustas mucho. ¿Te gustaría que saliéramos a tomar algo o dar un paseo uno de estos días?</p>
+            </div>
+        `);
+
+        // Insertar todas las páginas en el contenedor
+        container.innerHTML = paginasHTML.join('');
+
+        // Lógica de navegación
+        const pages = document.querySelectorAll('.page');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+        const counter = document.getElementById('page-counter');
+        
+        let currentPage = 0;
+        const totalPages = pages.length;
+
+        function updatePages() {
+            pages.forEach((page, index) => {
+                page.classList.remove('active', 'previous');
+                if (index === currentPage) {
+                    page.classList.add('active');
+                } else if (index < currentPage) {
+                    page.classList.add('previous');
+                }
+            });
+
+            // Actualizar estado de los botones
+            btnPrev.disabled = currentPage === 0;
+            
+            if (currentPage === totalPages - 1) {
+                btnNext.style.display = 'none'; // Ocultar el botón "Siguiente" en la última página
+            } else {
+                btnNext.style.display = 'block';
+            }
+
+            // Actualizar contador
+            if (currentPage === 0) {
+                counter.innerText = "Portada";
+            } else if (currentPage === totalPages - 1) {
+                counter.innerText = "Final";
+            } else {
+                counter.innerText = `${currentPage} / 10`;
+            }
+        }
+
+        btnNext.addEventListener('click', () => {
+            if (currentPage < totalPages - 1) {
+                currentPage++;
+                updatePages();
+            }
+        });
+
+        btnPrev.addEventListener('click', () => {
+            if (currentPage > 0) {
+                currentPage--;
+                updatePages();
+            }
+        });
+
+        // Inicializar
+        updatePages();
+    </script>
+</body>
+</html>
