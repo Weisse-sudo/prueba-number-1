@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Para Francesca</title>
+    <title>Para ti... 💖</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@400;600&display=swap');
 
@@ -34,6 +34,7 @@
             width: 100%;
             height: calc(100% - 80px);
             z-index: 10;
+            pointer-events: none; /* Permite hacer clic a través del contenedor si es necesario */
         }
 
         .page {
@@ -44,23 +45,25 @@
             padding: 40px;
             box-sizing: border-box;
             opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.5s ease-out;
+            visibility: hidden;
+            transition: opacity 0.4s ease-out, visibility 0.4s ease-out;
         }
 
         .page.active {
             opacity: 1;
+            visibility: visible;
             pointer-events: all;
         }
 
         .text-content {
             max-width: 500px;
             text-shadow: 0 5px 15px rgba(0,0,0,0.9);
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.6);
             padding: 30px;
             border-radius: 20px;
             backdrop-filter: blur(8px);
             border: 1px solid rgba(255,255,255,0.1);
+            position: relative;
         }
 
         h1 {
@@ -83,7 +86,7 @@
             color: rgba(255, 75, 114, 0.2);
             position: absolute;
             z-index: -1;
-            top: -10px;
+            top: -20px;
             left: 10px;
         }
 
@@ -94,22 +97,20 @@
         .pos-top-right { justify-content: flex-end; align-items: flex-start; text-align: right; }
         .pos-bottom-left { justify-content: flex-start; align-items: flex-end; text-align: left; }
         
-        /* Animaciones */
-        .anim-explode { transform: scale(0.2); opacity: 0; }
-        .active .anim-explode { animation: explodeIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-        @keyframes explodeIn { to { transform: scale(1); opacity: 1; } }
+        /* Animaciones de entrada de texto */
+        .anim-explode { transform: scale(0.3); opacity: 0; transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .page.active .anim-explode { transform: scale(1); opacity: 1; }
 
-        .anim-drop { transform: translateY(-100px); opacity: 0; }
-        .active .anim-drop { animation: dropDown 1s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
-        @keyframes dropDown { to { transform: translateY(0); opacity: 1; } }
+        .anim-drop { transform: translateY(-80px); opacity: 0; transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1); }
+        .page.active .anim-drop { transform: translateY(0); opacity: 1; }
 
-        .anim-slide-left { transform: translateX(-100px); opacity: 0; filter: blur(10px); }
-        .active .anim-slide-left { animation: slideLeft 0.8s ease-out forwards; }
-        @keyframes slideLeft { to { transform: translateX(0); opacity: 1; filter: blur(0); } }
+        .anim-slide-left { transform: translateX(-80px); opacity: 0; transition: all 0.5s ease-out; }
+        .page.active .anim-slide-left { transform: translateX(0); opacity: 1; }
 
         .controls {
             position: absolute;
             bottom: 0;
+            left: 0;
             width: 100%;
             height: 80px;
             background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
@@ -135,7 +136,7 @@
         }
 
         button:hover { background: #ff4b72; color: white; box-shadow: 0 0 15px rgba(255, 75, 114, 0.6); }
-        button:disabled { border-color: #555; color: #555; background: transparent; cursor: not-allowed; }
+        button:disabled { border-color: #555; color: #555; background: transparent; cursor: not-allowed; box-shadow: none; }
     </style>
 </head>
 <body>
@@ -144,8 +145,8 @@
     <div id="pages-container"></div>
 
     <div class="controls">
-        <button id="btn-prev" disabled>Atrás</button>
-        <span id="page-counter" style="color: rgba(255,255,255,0.5); font-size: 14px; font-weight: bold;"></span>
+        <button id="btn-prev">Atrás</button>
+        <span id="page-counter" style="color: rgba(255,255,255,0.6); font-size: 14px; font-weight: bold;"></span>
         <button id="btn-next">Siguiente</button>
     </div>
 
@@ -171,6 +172,7 @@
         const posiciones = ['pos-top-left', 'pos-bottom-right', 'pos-top-right', 'pos-bottom-left'];
         const animaciones = ['anim-explode', 'anim-drop', 'anim-slide-left'];
 
+        // Página 0: Inicio
         paginasHTML.push(`
             <div class="page active pos-center">
                 <div class="text-content anim-explode">
@@ -181,9 +183,10 @@
             </div>
         `);
 
+        // Páginas 1 a 10: Razones
         razones.forEach((razon, index) => {
-            const posRandom = posiciones[Math.floor(Math.random() * posiciones.length)];
-            const animRandom = animaciones[Math.floor(Math.random() * animaciones.length)];
+            const posRandom = posiciones[index % posiciones.length];
+            const animRandom = animaciones[index % animaciones.length];
             paginasHTML.push(`
                 <div class="page ${posRandom}">
                     <div class="text-content ${animRandom}">
@@ -195,6 +198,7 @@
             `);
         });
 
+        // Página Final: Pregunta
         paginasHTML.push(`
             <div class="page pos-center">
                 <div class="text-content anim-drop">
@@ -216,7 +220,7 @@
         let particles = [];
         const numParticles = 3500;
         let time = 0;
-        let animationState = 'heart'; // 'heart', 'rose', 'bird'
+        let animationState = 'heart'; 
         
         let targets = { heart: [], rose: [], bird: [] };
 
@@ -227,7 +231,6 @@
         }
         window.addEventListener('resize', resize);
 
-        // Generar geometrías matemáticas puestas por código (Sin requerir imágenes externas)
         function generateFormations() {
             // 1. CORAZÓN
             targets.heart = [];
@@ -242,59 +245,49 @@
                 });
             }
 
-            // 2. ROSA EN 3D (Estructura paramétrica en espiral con cúpula)
+            // 2. ROSA EN 3D
             targets.rose = [];
             for (let i = 0; i < numParticles; i++) {
-                let u = (i / numParticles) * Math.PI * 12; // Vueltas de los pétalos
+                let u = (i / numParticles) * Math.PI * 12;
                 let r = Math.sin(u * 0.7) * 15 + (i / numParticles) * 10;
                 
                 let x = r * Math.cos(u);
                 let y = r * Math.sin(u);
-                // Forma de copa/cúpula tridimensional para el centro de la rosa
                 let z = -Math.sqrt(Math.max(0, 400 - (x*x + y*y))) + 10 + (Math.random() - 0.5) * 4;
 
-                // Color dinámico: rojo intenso en los pétalos superiores, tallo/hojas verdosas abajo
                 let col = i < numParticles * 0.2 ? '#2e8b57' : (Math.random() > 0.3 ? '#e60026' : '#ff4d6d');
-
                 targets.rose.push({ x: x * 1.5, y: y * 1.5 - 20, z: z * 1.5, color: col });
             }
 
-            // 3. AVE ESTÉTICA (Silueta con alas extendidas, cuerpo y cola)
+            // 3. AVE ESTÉTICA
             targets.bird = [];
             for (let i = 0; i < numParticles; i++) {
                 let partType = Math.random();
                 let x = 0, y = 0, z = 0;
 
                 if (partType < 0.45) {
-                    // Ala Izquierda
                     let t = Math.random();
                     x = -t * 60 - 5;
                     y = -Math.pow(t, 0.7) * 50 + (Math.random() - 0.5) * 6;
                     z = (Math.random() - 0.5) * 5;
                 } else if (partType < 0.90) {
-                    // Ala Derecha (Simétrica)
                     let t = Math.random();
                     x = t * 60 + 5;
                     y = -Math.pow(t, 0.7) * 50 + (Math.random() - 0.5) * 6;
                     z = (Math.random() - 0.5) * 5;
                 } else if (partType < 0.97) {
-                    // Cuerpo y Cabeza
                     let t = (Math.random() - 0.5) * 40;
                     x = (Math.random() - 0.5) * 10;
                     y = t;
                     z = (Math.random() - 0.5) * 10;
                 } else {
-                    // Cola larga
                     let t = Math.random();
                     x = (Math.random() - 0.5) * t * 15;
                     y = t * 50 + 15;
                     z = (Math.random() - 0.5) * 4;
                 }
 
-                targets.bird.push({
-                    x: x, y: y, z: z,
-                    color: '#e0e0e0'
-                });
+                targets.bird.push({ x: x, y: y, z: z, color: '#e0e0e0' });
             }
         }
 
@@ -331,12 +324,10 @@
                     finalY = height / 2 + (ty * scale * beat);
 
                 } else if (animationState === 'rose') {
-                    // ROTACIÓN 3D FLUIDA PARA LA ROSA
                     let scale = Math.min(width, height) / 25;
-                    let rotY = time * 0.6; // Velocidad de giro en 3D
-                    let rotX = 0.4;        // Inclinación fija para apreciar el volumen
+                    let rotY = time * 0.6; 
+                    let rotX = 0.4;        
 
-                    // Matrices de rotación 3D
                     let x1 = tx * Math.cos(rotY) - tz * Math.sin(rotY);
                     let z1 = tx * Math.sin(rotY) + tz * Math.cos(rotY);
                     
@@ -350,13 +341,11 @@
                     finalY = height / 2 + (y2 * scale * proj);
 
                 } else if (animationState === 'bird') {
-                    // AVE ESTática Y ELEGANTE
                     let scale = Math.min(width, height) / 35;
                     finalX = width / 2 + (tx * scale);
                     finalY = height / 2 + (ty * scale) - 20;
                 }
 
-                // Interpolación suave (LERP) hacia la figura
                 this.x += (finalX - this.x) * 0.08;
                 this.y += (finalY - this.y) * 0.08;
 
@@ -367,12 +356,11 @@
             }
         }
 
-        // Inicialización
         resize();
         for (let i = 0; i < numParticles; i++) particles.push(new Particle(i));
 
         function animate() {
-            ctx.fillStyle = 'rgba(5, 5, 5, 0.3)'; // Estela suave
+            ctx.fillStyle = 'rgba(5, 5, 5, 0.3)'; 
             ctx.fillRect(0, 0, width, height);
             
             particles.forEach(p => p.updateAndDraw());
@@ -382,7 +370,7 @@
         animate();
 
         // ==========================================
-        // CONTROL DE NAVEGACIÓN ENTRE PÁGINAS
+        // CONTROL DE NAVEGACIÓN Y BOTONES
         // ==========================================
         const pages = document.querySelectorAll('.page');
         const btnPrev = document.getElementById('btn-prev');
@@ -394,11 +382,14 @@
 
         function updatePages() {
             pages.forEach((page, index) => {
-                if (index === currentPage) page.classList.add('active');
-                else page.classList.remove('active');
+                if (index === currentPage) {
+                    page.classList.add('active');
+                } else {
+                    page.classList.remove('active');
+                }
             });
 
-            // Asignar animaciones del fondo según el número de página solicitado
+            // Cambiar figura de partículas según la página actual
             if (currentPage >= 3 && currentPage <= 5) {
                 animationState = 'rose';
             } else if (currentPage >= 6 && currentPage <= 8) {
@@ -407,16 +398,36 @@
                 animationState = 'heart';
             }
 
-            btnPrev.disabled = currentPage === 0;
-            btnNext.style.display = currentPage === totalPages - 1 ? 'none' : 'block';
+            // Estado de los botones
+            btnPrev.disabled = (currentPage === 0);
             
+            if (currentPage === totalPages - 1) {
+                btnNext.innerText = "¡Listo!";
+            } else {
+                btnNext.innerText = "Siguiente";
+            }
+            
+            // Contador de páginas
             if (currentPage === 0) counter.innerText = "Inicio";
-            else if (currentPage === totalPages - 1) counter.innerText = "Fin";
-            else counter.innerText = `${currentPage} de 10`;
+            else if (currentPage === totalPages - 1) counter.innerText = "Final";
+            else counter.innerText = `${currentPage} de ${totalPages - 2}`;
         }
 
-        btnNext.addEventListener('click', () => { if (currentPage < totalPages - 1) { currentPage++; updatePages(); } });
-        btnPrev.addEventListener('click', () => { if (currentPage > 0) { currentPage--; updatePages(); } });
+        btnNext.addEventListener('click', () => {
+            if (currentPage < totalPages - 1) {
+                currentPage++;
+                updatePages();
+            }
+        });
+
+        btnPrev.addEventListener('click', () => {
+            if (currentPage > 0) {
+                currentPage--;
+                updatePages();
+            }
+        });
+
+        // Inicializar vistas
         updatePages();
     </script>
 </body>
